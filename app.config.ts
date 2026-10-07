@@ -97,5 +97,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-font',
   ],
   experiments: { typedRoutes: true, reactCompiler: true },
-  extra: { appEnv: APP_ENV },
+  owner: 'sarmadcodess',
+  extra: { appEnv: APP_ENV, eas: { projectId: 'db215ecf-47c5-48ce-b42b-042faf7d610d' } },
 });
