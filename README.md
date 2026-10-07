@@ -57,7 +57,7 @@ Fill `.env` (everything is optional for local play; see "Environment variables")
 AdMob is a native module that **Expo Go does not include**. The app detects Expo Go and disables ads, so Expo Go is fine for gameplay/UI work:
 
 ```bash
-npx expo start
+npm start                  # opens in Expo Go (SDK 57)
 ```
 
 To test ads, consent and the full native build, use a development build:
