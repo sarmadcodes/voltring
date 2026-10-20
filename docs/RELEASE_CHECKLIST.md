@@ -13,15 +13,17 @@ Status legend: [x] done in the codebase and verified, [ ] needs you (credentials
 - [x] Supabase migration: RLS on, no table privileges for anon, validated SECURITY DEFINER RPCs (32 checks in `npm run test:db`)
 - [x] TypeScript, ESLint, 53 Jest tests, expo-doctor all passing (`npm run check`)
 - [x] Icons and splash generated (`assets/images`)
+- [x] Play icon 512x512 (`assets/images/play-store-icon.png`) and feature graphic 1024x500 (`assets/store/feature-graphic.png`)
+- [x] Hostable privacy policy page with a data-deletion section: `docs/privacy/index.html` (replace `SUPPORT_EMAIL`)
 
 ## You need to provide
 - [ ] Supabase project: run the migration, set `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY`
 - [ ] AdMob: app + banner, interstitial and rewarded units; set `ADMOB_ANDROID_APP_ID` and the three `EXPO_PUBLIC_ADMOB_*` vars as EAS production env vars
 - [ ] AdMob Privacy & messaging: publish a GDPR message (and a US state regulations message)
-- [ ] Privacy policy hosted (see `docs/PRIVACY_POLICY.md`); set `EXPO_PUBLIC_PRIVACY_POLICY_URL`
+- [ ] Host `docs/privacy/index.html` (e.g. GitHub Pages), set `EXPO_PUBLIC_PRIVACY_POLICY_URL`; use `<url>#delete` as the Play data-deletion URL
 - [ ] Support email; set `EXPO_PUBLIC_SUPPORT_EMAIL`
 - [ ] `npx eas-cli login` + `npx eas-cli init`
-- [ ] Feature graphic (1024 x 500) and 4 to 8 real phone screenshots
+- [ ] 4 to 8 real phone screenshots from a preview build
 
 ## On real devices (preview build: `npm run build:preview`)
 - [ ] Fresh install: name prompt, consent form (test from an EEA VPN or with UMP debug geography), first game

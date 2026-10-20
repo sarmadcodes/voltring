@@ -59,7 +59,8 @@
     "build:preview": "npx eas-cli@latest build --profile preview --platform android",
     "build:prod": "npx eas-cli@latest build --profile production --platform android",
     "submit:prod": "npx eas-cli@latest submit --profile production --platform android",
-    "test:db": "node supabase/tests/rpc.test.mjs supabase/migrations/20261006000000_voltring_init.sql"
+    "test:db": "node supabase/tests/rpc.test.mjs supabase/migrations/20261006000000_voltring_init.sql",
+    "gen:feature": "python scripts/generate-feature-graphic.py"
   },
   "private": true,
   "jest": {
