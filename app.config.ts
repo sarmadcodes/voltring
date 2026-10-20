@@ -25,7 +25,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   backgroundColor: '#06060B',
   android: {
     package: 'com.sarmad.voltring',
-    versionCode: 1,
     adaptiveIcon: {
       backgroundColor: '#06060B',
       foregroundImage: './assets/images/android-icon-foreground.png',
