@@ -22,7 +22,7 @@ Status legend: [x] done in the codebase and verified, [ ] needs you (credentials
 - [ ] AdMob Privacy & messaging: publish a GDPR message (and a US state regulations message)
 - [ ] Host `docs/privacy/index.html` (e.g. GitHub Pages), set `EXPO_PUBLIC_PRIVACY_POLICY_URL`; use `<url>#delete` as the Play data-deletion URL
 - [ ] Support email; set `EXPO_PUBLIC_SUPPORT_EMAIL`
-- [ ] `npx eas-cli login` + `npx eas-cli init`
+- [x] `npx eas-cli login` + `npx eas-cli init` (project linked: @sarmadcodess/voltring)
 - [ ] 4 to 8 real phone screenshots from a preview build
 
 ## On real devices (preview build: `npm run build:preview`)
