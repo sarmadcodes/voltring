@@ -7,7 +7,9 @@ import type { ConfigContext, ExpoConfig } from 'expo/config';
  */
 const APP_ENV = process.env.EXPO_PUBLIC_APP_ENV ?? 'development';
 
-if (APP_ENV === 'production' && !process.env.EXPO_PUBLIC_PRIVACY_POLICY_URL) {
+// Checked only on the EAS build worker: the CLI also evaluates this file locally before
+// EAS environment variables are loaded, where the value is legitimately absent.
+if (APP_ENV === 'production' && process.env.EAS_BUILD === 'true' && !process.env.EXPO_PUBLIC_PRIVACY_POLICY_URL) {
   throw new Error('Production build is missing EXPO_PUBLIC_PRIVACY_POLICY_URL');
 }
 
