@@ -14,11 +14,10 @@ Status legend: [x] done in the codebase and verified, [ ] needs you (accounts, a
 - [x] TypeScript, ESLint, Jest tests, expo-doctor all passing (`npm run check`)
 - [x] EAS project linked (`@sarmadcodess/voltring`)
 - [x] Icons, splash, Play icon 512x512 (`assets/images/play-store-icon.png`), feature graphic 1024x500 (`assets/store/feature-graphic.png`)
-- [x] Hostable privacy policy page: `docs/privacy/index.html` (replace `SUPPORT_EMAIL`)
+- [x] Privacy policy live at https://sarmadcodes.github.io/voltring/ (source `docs/privacy/index.html`, published from the `gh-pages` branch)
 
 ## You need to provide
-- [ ] Support email: replace `SUPPORT_EMAIL` in `docs/privacy/index.html`; set `EXPO_PUBLIC_SUPPORT_EMAIL`
-- [ ] Host the privacy page (e.g. GitHub Pages) and set `EXPO_PUBLIC_PRIVACY_POLICY_URL`
+- [ ] Set EAS production vars `EXPO_PUBLIC_PRIVACY_POLICY_URL` (https://sarmadcodes.github.io/voltring/) and `EXPO_PUBLIC_SUPPORT_EMAIL`
 - [ ] AdMob: app + banner, interstitial and rewarded units; set `ADMOB_ANDROID_APP_ID` and the three `EXPO_PUBLIC_ADMOB_*` vars as EAS production env vars
 - [ ] AdMob Privacy & messaging: publish a GDPR message (and a US state regulations message)
 - [ ] 4 to 8 real phone screenshots from a preview build

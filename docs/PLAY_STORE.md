@@ -27,8 +27,8 @@ Everything here reflects the actual implementation as of version 1.0.0: a fully 
 
 **Category:** Game > Arcade
 **Tags (pick up to 5 in the Console):** Arcade, Casual, Reflex, Single player, Offline
-**Contact email:** _your support email (required)_
-**Privacy policy URL:** _your hosted `docs/privacy/index.html` (required because the app contains ads)_
+**Contact email:** sarmadsuper3@gmail.com
+**Privacy policy URL:** https://sarmadcodes.github.io/voltring/
 
 ## Graphics checklist
 
