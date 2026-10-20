@@ -69,8 +69,6 @@ interface GameOverProps {
   /** Place in the personal top 10, or null. */
   rank: number | null;
   gamesPlayed: number;
-  canContinue: boolean;
-  onContinue: () => void;
   onPlayAgain: () => void;
   onRecords: () => void;
   onHome: () => void;
@@ -112,9 +110,6 @@ export function GameOverPanel(p: GameOverProps) {
         </NeonText>
 
         <View style={styles.actions}>
-          {p.canContinue ? (
-            <GameButton label="CONTINUE" sublabel="WATCH AD FOR 1 LIFE" variant="danger" onPress={p.onContinue} disabled={!armed} />
-          ) : null}
           <GameButton label="PLAY AGAIN" variant="primary" size="lg" onPress={p.onPlayAgain} disabled={!armed} />
           <View style={styles.row}>
             <GameButton label="RECORDS" onPress={p.onRecords} disabled={!armed} style={styles.flex} />

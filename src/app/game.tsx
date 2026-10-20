@@ -20,11 +20,10 @@ import { NeonText } from '@/components/NeonText';
 import { Countdown, GameOverPanel, PausePanel } from '@/components/game/Overlays';
 import { ComboDisplay, LivesDisplay, PauseButton, ScoreDisplay } from '@/components/game/Hud';
 import { Ring } from '@/components/game/Ring';
-import { Evt, Status, createEngineState, revive, step, tap, type EngineState } from '@/game/engine';
+import { Evt, Status, createEngineState, step, tap, type EngineState } from '@/game/engine';
 import { COMBO_MILESTONE, START_LIVES, gateHalfForHits, levelForHits } from '@/game/rules';
 import { formatScore } from '@/lib/format';
 import { useGuardedPress } from '@/lib/useGuardedPress';
-import { isRewardedReady, maybeShowInterstitial, noteGameCompleted, onRewardedReadyChange, showRewarded } from '@/services/ads';
 import { play } from '@/services/audio';
 import { haptic } from '@/services/haptics';
 import { recordRun, useAppData } from '@/state/store';
@@ -82,8 +81,6 @@ export default function GameScreen() {
   const [hud, setHud] = useState<Hud>(INITIAL_HUD);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [over, setOver] = useState<OverInfo | null>(null);
-  const [rewardReady, setRewardReady] = useState(isRewardedReady());
-  const [continueUsed, setContinueUsed] = useState(false);
 
   const run = useRef({ runId: newRunId(), continued: false, overHandled: false });
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -104,7 +101,6 @@ export default function GameScreen() {
     setPhase(p);
   }, []);
 
-  useEffect(() => onRewardedReadyChange(setRewardReady), []);
   useEffect(() => clearTimers, [clearTimers]);
 
   // ---------------------------------------------------------------------------
@@ -230,7 +226,6 @@ export default function GameScreen() {
       { runId: run.current.runId, score, hits, maxCombo, at: Date.now() },
       run.current.continued,
     );
-    if (!run.current.continued) noteGameCompleted();
     const beatStart = score > bestAtStart;
     play(beatStart && newBest ? 'record' : 'gameover');
     haptic('gameover');
@@ -298,48 +293,19 @@ export default function GameScreen() {
     setHud(INITIAL_HUD);
     setFeedback(null);
     setOver(null);
-    setContinueUsed(false);
     startCountdown();
   }, [engine, best, startCountdown]);
 
-  const leave = useCallback(async () => {
+  const leave = useCallback(() => {
     if (busy.current) return;
     busy.current = true;
     clearTimers();
     frame.setActive(false);
-    if (phaseRef.current === 'over') await maybeShowInterstitial();
     if (router.canGoBack()) router.back();
     else router.replace('/');
   }, [clearTimers, frame]);
 
-  const playAgain = useGuardedPress(async () => {
-    if (busy.current) return;
-    busy.current = true;
-    await maybeShowInterstitial();
-    busy.current = false;
-    resetRun();
-  }, 800);
-
-  const continueRun = useGuardedPress(async () => {
-    if (continueUsed || busy.current) return;
-    setContinueUsed(true);
-    busy.current = true;
-    const earned = await showRewarded();
-    busy.current = false;
-    if (!earned) return;
-    engine.modify((s) => {
-      'worklet';
-      revive(s);
-      return s;
-    }, true);
-    run.current.continued = true;
-    run.current.overHandled = false;
-    const s = engine.get();
-    setHud({ score: s.score, combo: 0, lives: s.lives, half: s.half, golden: s.golden });
-    setOver(null);
-    setFeedback(null);
-    startCountdown();
-  }, 800);
+  const playAgain = useGuardedPress(() => resetRun(), 800);
 
   const restartFromPause = useCallback(() => resetRun(), [resetRun]);
 
@@ -357,8 +323,8 @@ export default function GameScreen() {
       const sub = BackHandler.addEventListener('hardwareBackPress', () => {
         const p = phaseRef.current;
         if (p === 'playing' || p === 'countdown') pause();
-        else if (p === 'paused') void leave();
-        else if (p === 'over' && !busy.current) void leave();
+        else if (p === 'paused') leave();
+        else if (p === 'over' && !busy.current) leave();
         return true;
       });
       return () => sub.remove();
@@ -443,8 +409,6 @@ export default function GameScreen() {
           newBest={over.newBest}
           rank={over.rank}
           gamesPlayed={gamesPlayed}
-          canContinue={!continueUsed && rewardReady}
-          onContinue={continueRun}
           onPlayAgain={playAgain}
           onRecords={() => router.push('/records')}
           onHome={leave}

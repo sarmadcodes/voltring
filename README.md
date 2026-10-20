@@ -2,9 +2,9 @@
 
 A one-tap retro neon arcade game for Android. A spark circles a ring; tap anywhere while it is inside the glowing gate. Hits chain into a combo multiplier, the ring speeds up, gates shrink, and you have three lives.
 
-**Fully client-side:** there is no backend, no account and no login. Best score, your top 10 runs and settings are saved on the device only. The only network traffic is Google AdMob.
+**Fully client-side:** there is no backend, no account, no login and no ads. Best score, your top 10 runs and settings are saved on the device only. The app makes no network requests.
 
-Built with Expo SDK 57, React Native 0.86, Expo Router, Reanimated 4 and Google AdMob.
+Built with Expo SDK 57, React Native 0.86, Expo Router and Reanimated 4.
 
 ---
 
@@ -29,7 +29,6 @@ The simulation is a single plain object stepped on the UI thread (`useFrameCallb
 
 - **Best score**, best combo and games played.
 - **Top 10 runs** (score, combo, hits, date), shown on the Records screen and ranked on game over ("TOP 10 #3").
-- A rewarded "continue" updates the same run's entry instead of adding a second one, and doesn't count as an extra game.
 - Corrupt or edited storage is sanitised on load (falls back to defaults, never crashes).
 - Settings > Reset records clears everything.
 
@@ -42,9 +41,9 @@ src/
   app/             Expo Router screens: index (home), game, records, settings, about
   components/      UI kit (GameButton, NeonText, Backdrop, RecordRow, ...) and game/ (Ring, Hud, Overlays)
   game/            rules.ts (scoring/difficulty), engine.ts (worklet simulation)
-  services/        storage, ads (+adPolicy, web stub), audio, haptics
+  services/        storage, audio, haptics
   state/store.ts   small external store for persistent app data
-  config/env.ts    EXPO_PUBLIC_* configuration (AdMob units, URLs)
+  config/env.ts    EXPO_PUBLIC_* configuration (privacy URL, support email)
   __tests__/       Jest tests for real logic
 scripts/           generate-audio.mjs, generate-icons.mjs, generate-feature-graphic.py
 docs/              Play Store listing, Data Safety, privacy policy (+ hostable page), release checklist
@@ -60,17 +59,10 @@ npm install
 
 ### Run it
 
-AdMob is a native module that **Expo Go does not include**. The app detects Expo Go and disables ads, so Expo Go (SDK 57) is fine for gameplay/UI work:
+Everything works in Expo Go (SDK 57):
 
 ```bash
 npm start
-```
-
-To test ads and the consent form, use a development build:
-
-```bash
-npm run build:dev          # EAS cloud build of the dev client (APK); install it on the phone
-npm run start:dev-client   # then open the project from the dev client
 ```
 
 ### Checks
@@ -78,7 +70,7 @@ npm run start:dev-client   # then open the project from the dev client
 ```bash
 npm run typecheck
 npm run lint
-npm test          # Jest: engine, scoring, difficulty, fairness, local records, persistence, ad policy
+npm test          # Jest: engine, scoring, difficulty, fairness, local records, persistence
 npm run check     # all of the above + expo-doctor
 ```
 
@@ -86,49 +78,29 @@ npm run check     # all of the above + expo-doctor
 
 ## Environment variables
 
-Everything here is public by design (it's bundled into the app). There are no secrets.
+Everything here is public by design. There are no secrets.
 
 | Variable | Needed for | Notes |
 |---|---|---|
 | `EXPO_PUBLIC_APP_ENV` | all | `development` / `preview` / `production`. Set automatically by EAS profiles. |
-| `ADMOB_ANDROID_APP_ID` | production | `ca-app-pub-...~...` (build-time only, goes into the manifest) |
-| `EXPO_PUBLIC_ADMOB_BANNER_ANDROID` | production | ad unit ID |
-| `EXPO_PUBLIC_ADMOB_INTERSTITIAL_ANDROID` | production | ad unit ID |
-| `EXPO_PUBLIC_ADMOB_REWARDED_ANDROID` | production | ad unit ID |
-| `EXPO_PUBLIC_PRIVACY_POLICY_URL` | production | shown in Settings |
+| `EXPO_PUBLIC_PRIVACY_POLICY_URL` | production | shown in Settings; the production build refuses to run without it. Set in EAS. |
 | `EXPO_PUBLIC_TERMS_URL` | optional | shown in Settings if set |
-| `EXPO_PUBLIC_SUPPORT_EMAIL` | optional | "Contact support" in Settings |
+| `EXPO_PUBLIC_SUPPORT_EMAIL` | optional | "Contact support" in Settings. Set in EAS. |
 
-Development and preview builds **always** use Google's official test ad units. Production builds **refuse to build** (`app.config.ts` throws) if any AdMob ID or the privacy URL is missing, or if the Google test app ID would be used.
-
-Set production values as EAS environment variables, for example:
-
-```bash
-npx eas-cli env:create --environment production --name EXPO_PUBLIC_PRIVACY_POLICY_URL --value "https://..." --visibility plaintext
-```
+The privacy policy is published from the `gh-pages` branch to https://sarmadcodes.github.io/voltring/ (source: `docs/privacy/index.html`).
 
 ---
 
-## AdMob
+## Ads
 
-- `app.config.ts` injects the App ID through the `react-native-google-mobile-ads` config plugin.
-- `src/services/ads.ts` runs the **Google UMP consent flow** (`AdsConsent.gatherConsent`) at launch, before the SDK initialises, and only requests ads when `canRequestAds` is true. Settings shows **Ad privacy choices** whenever UMP says it's required, so users can change or withdraw consent.
-- The max ad content rating is PG.
-- Placement (`src/services/adPolicy.ts`, easy to tune):
-  - **Home**: an anchored adaptive banner at the bottom, never over controls.
-  - **Gameplay**: no ads, ever.
-  - **Interstitial**: only when leaving the game-over screen (Play Again / Home). Never in the first 3 games, at most every 4 games, at least 3 minutes apart, and never within 2 minutes of a rewarded ad.
-  - **Rewarded**: an optional "Continue" on game over, once per run, restores one life. It only appears if an ad is loaded, and the player can always skip it.
-- Every ad failure resolves to "no ad", with a hard 60/120 s safety timeout.
-
-In AdMob you also need to create the app and 3 ad units, and publish a **GDPR consent message** (plus the US state regulations message) under Privacy & messaging.
+Version 1 ships with **no ads**. To add AdMob later: install `react-native-google-mobile-ads`, add its config plugin with the app ID, gather consent with the UMP SDK before requesting ads, and update the privacy policy, Data Safety form and content rating ("contains ads") before releasing that update. `src/game/engine.ts` still has `revive()` ready for an optional rewarded "continue".
 
 ---
 
 ## Building and releasing
 
 ```bash
-npm run build:preview              # internal APK with test ads, for QA on real phones
+npm run build:preview              # internal APK for QA on real phones
 npm run build:prod                 # Android App Bundle (.aab) for Google Play
 npm run submit:prod                # uploads to the Play internal track as a draft (needs a service account)
 ```

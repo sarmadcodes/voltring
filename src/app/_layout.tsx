@@ -9,7 +9,6 @@ import { AppState } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { initAds } from '@/services/ads';
 import { initAudio, setAppActive, setMusicWanted, syncMusic } from '@/services/audio';
 import { hydrate, subscribe, useAppData } from '@/state/store';
 import { colors } from '@/theme/tokens';
@@ -37,8 +36,6 @@ export default function RootLayout() {
     void SplashScreen.hideAsync().catch(() => undefined);
     // Native-heavy work starts after first paint and never blocks PLAY.
     void initAudio().then(() => setMusicWanted(true));
-    // Consent (where required) is gathered at launch, before any ad is requested.
-    void initAds();
   }, [appReady]);
 
   useEffect(() => {

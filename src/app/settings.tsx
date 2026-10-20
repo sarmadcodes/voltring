@@ -7,7 +7,6 @@ import { ScreenContainer } from '@/components/ScreenContainer';
 import { LinkRow, ToggleRow } from '@/components/SettingsRow';
 import { APP_VERSION, PRIVACY_POLICY_URL, SUPPORT_EMAIL, TERMS_URL } from '@/config/env';
 import { logError } from '@/lib/log';
-import { isPrivacyOptionsRequired, showPrivacyOptions } from '@/services/ads';
 import { resetStats, updateSettings, useAppData } from '@/state/store';
 import { colors, space } from '@/theme/tokens';
 
@@ -44,7 +43,6 @@ export default function SettingsScreen() {
         </Section>
 
         <Section label="PRIVACY AND INFO">
-          {isPrivacyOptionsRequired() ? <LinkRow label="Ad privacy choices" onPress={() => void showPrivacyOptions()} /> : null}
           {PRIVACY_POLICY_URL ? <LinkRow label="Privacy policy" onPress={() => void openUrl(PRIVACY_POLICY_URL)} /> : null}
           {TERMS_URL ? <LinkRow label="Terms" onPress={() => void openUrl(TERMS_URL)} /> : null}
           {SUPPORT_EMAIL ? (

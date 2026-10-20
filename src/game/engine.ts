@@ -163,7 +163,7 @@ export function tap(s: EngineState): EvtCode {
   return perfect ? Evt.Perfect : Evt.Hit;
 }
 
-/** Rewarded-ad continue: one life back, streak lost, score kept. */
+/** Continue a finished run: one life back, streak lost, score kept. Unused in v1 (kept for a future optional continue). */
 export function revive(s: EngineState): void {
   'worklet';
   if (s.status !== Status.Over) return;

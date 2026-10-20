@@ -2,28 +2,13 @@ import type { ConfigContext, ExpoConfig } from 'expo/config';
 
 /**
  * Build-time config. APP_ENV comes from the EAS build profile (see eas.json).
- * Production builds refuse to compile with placeholder/test AdMob IDs or a missing privacy URL.
- * The game has no backend: there are no server URLs or keys to configure.
+ * The game is fully offline: no backend, no ads, no keys. Production only needs the
+ * privacy policy URL (Play requires one), and refuses to build without it.
  */
 const APP_ENV = process.env.EXPO_PUBLIC_APP_ENV ?? 'development';
-const IS_PROD = APP_ENV === 'production';
 
-// Google's official sample AdMob app ID: safe for development/preview only.
-const TEST_ADMOB_APP_ID = 'ca-app-pub-3940256099942544~3347511713';
-const admobAppId = process.env.ADMOB_ANDROID_APP_ID || (IS_PROD ? '' : TEST_ADMOB_APP_ID);
-
-if (IS_PROD) {
-  const missing = [
-    ['ADMOB_ANDROID_APP_ID', process.env.ADMOB_ANDROID_APP_ID],
-    ['EXPO_PUBLIC_ADMOB_BANNER_ANDROID', process.env.EXPO_PUBLIC_ADMOB_BANNER_ANDROID],
-    ['EXPO_PUBLIC_ADMOB_INTERSTITIAL_ANDROID', process.env.EXPO_PUBLIC_ADMOB_INTERSTITIAL_ANDROID],
-    ['EXPO_PUBLIC_ADMOB_REWARDED_ANDROID', process.env.EXPO_PUBLIC_ADMOB_REWARDED_ANDROID],
-    ['EXPO_PUBLIC_PRIVACY_POLICY_URL', process.env.EXPO_PUBLIC_PRIVACY_POLICY_URL],
-  ].filter(([, v]) => !v);
-  if (missing.length) throw new Error(`Production build is missing: ${missing.map(([k]) => k).join(', ')}`);
-  if (admobAppId.startsWith('ca-app-pub-3940256099942544')) {
-    throw new Error('Production build is using the Google TEST AdMob app ID. Set ADMOB_ANDROID_APP_ID.');
-  }
+if (APP_ENV === 'production' && !process.env.EXPO_PUBLIC_PRIVACY_POLICY_URL) {
+  throw new Error('Production build is missing EXPO_PUBLIC_PRIVACY_POLICY_URL');
 }
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
@@ -45,7 +30,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       monochromeImage: './assets/images/android-icon-monochrome.png',
     },
     predictiveBackGestureEnabled: false,
-    // Only INTERNET / ACCESS_NETWORK_STATE (added by AdMob) remain; nothing sensitive.
+    // The app needs no permissions beyond VIBRATE (haptics); block anything libraries might add.
     blockedPermissions: [
       'android.permission.RECORD_AUDIO',
       'android.permission.MODIFY_AUDIO_SETTINGS',
@@ -71,15 +56,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       'expo-audio',
       { microphonePermission: false, recordAudioAndroid: false, enableBackgroundPlayback: false, enableBackgroundRecording: false },
-    ],
-    [
-      'react-native-google-mobile-ads',
-      {
-        androidAppId: admobAppId,
-        // iOS is not shipped; the sample ID only keeps the plugin from warning.
-        iosAppId: 'ca-app-pub-3940256099942544~1458002511',
-        delayAppMeasurementInit: true,
-      },
     ],
     [
       'expo-build-properties',

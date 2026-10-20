@@ -2,7 +2,6 @@ import { router } from 'expo-router';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
-import { AdBanner } from '@/components/AdBanner';
 import { GameButton } from '@/components/GameButton';
 import { LogoMark } from '@/components/LogoMark';
 import { NeonText } from '@/components/NeonText';
@@ -43,9 +42,6 @@ export default function Home() {
         </View>
       </Animated.View>
 
-      <View style={styles.banner}>
-        <AdBanner />
-      </View>
     </ScreenContainer>
   );
 }
@@ -59,5 +55,4 @@ const styles = StyleSheet.create({
   actions: { gap: space.md, paddingBottom: space.lg, width: '100%', maxWidth: 440, alignSelf: 'center' },
   row: { flexDirection: 'row', gap: space.md },
   flex: { flex: 1 },
-  banner: { marginHorizontal: -space.lg, minHeight: 0 },
 });

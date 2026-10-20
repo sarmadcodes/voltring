@@ -1,6 +1,6 @@
 # Google Play listing and declarations
 
-Everything here reflects the actual implementation as of version 1.0.0: a fully offline game with no backend, where the only data collection comes from the Google Mobile Ads SDK. If you add any SDK (analytics, crash reporting, cloud saves), update the Data Safety answers before the next release.
+Everything here reflects the actual implementation as of version 1.0.0: a fully offline game with **no backend, no ads, no analytics and no data collection**. If you add any SDK later (AdMob, analytics, crash reporting, cloud saves), update the Data Safety answers, content rating (ads) and privacy policy before that release.
 
 ## Store listing
 
@@ -20,12 +20,12 @@ Everything here reflects the actual implementation as of version 1.0.0: a fully 
 > - Runs from 30 seconds to as long as you can hold on
 > - Combo multiplier, perfect hits and gold gates for score chasers
 > - Your top 10 runs saved as personal records
-> - Plays fully offline, no account or login
+> - Plays fully offline: no ads, no account, no login
 > - Clean retro neon look with original synth sound effects and music
 >
 > Sound, music and haptics can each be switched off in Settings.
 
-**Category:** Game > Arcade
+**Category:** Game > Arcade (free, no ads, no in-app purchases)
 **Tags (pick up to 5 in the Console):** Arcade, Casual, Reflex, Single player, Offline
 **Contact email:** sarmadsuper3@gmail.com
 **Privacy policy URL:** https://sarmadcodes.github.io/voltring/
@@ -43,31 +43,14 @@ Screenshots must show the real UI from real play.
 
 ## Data Safety form
 
-### What the app itself does
-VOLTRING has no backend and no account. Scores, records and settings never leave the device. The app makes no network requests of its own; all network traffic comes from the Google Mobile Ads SDK.
+VOLTRING has no backend, no account, no ads and no analytics. Scores, records and settings never leave the device, and the app makes no network requests.
 
-### Overview answers
-
-- Does the app collect or share any of the required user data types? **Yes** (through the Google Mobile Ads SDK only)
-- Is all user data encrypted in transit? **Yes** (the AdMob SDK uses TLS)
-- Do you provide a way for users to request that their data is deleted? **No.** The app stores nothing about the user on any server you control; advertising data is managed by Google, and users can reset or delete their advertising ID in Android settings. (Play accepts "No" here when there's no account and no developer-held data.)
-
-### Data types (all collected by the Google Mobile Ads SDK)
-
-| Data type (Play category) | Collected | Shared | Optional? | Purposes |
-|---|---|---|---|---|
-| Device or other IDs (advertising ID) | Yes | Yes (Google) | Required | Advertising or marketing, Analytics, Fraud prevention, security and compliance |
-| Location > Approximate location (from IP) | Yes | Yes (Google) | Required | Advertising or marketing, Fraud prevention, security and compliance |
-| App activity > App interactions (ad impressions/clicks) | Yes | Yes (Google) | Required | Advertising or marketing, Analytics |
-| App info and performance > Diagnostics | Yes | Yes (Google) | Required | Analytics, Fraud prevention, security and compliance |
-
-Data stored only on the device (best score, records, settings) is not "collected" under Play's definitions, because it is never transmitted off the device.
-
-Confirm the AdMob rows against Google's current guidance before submitting: <https://developers.google.com/admob/android/privacy/play-data-disclosure>.
+- Does the app collect or share any of the required user data types? **No**
+- (The form then skips the remaining questions.) Data stored only on the device is not "collected" under Play's definitions, because it is never transmitted off the device.
 
 ### Advertising ID declaration
 
-App content > Advertising ID: **Yes, the app uses advertising ID**, for **Advertising or marketing** (the AdMob SDK adds the `AD_ID` permission).
+App content > Advertising ID: **No, the app does not use advertising ID** (the `AD_ID` permission is not in the manifest).
 
 ## Content rating (IARC questionnaire)
 
@@ -76,24 +59,21 @@ App content > Advertising ID: **Yes, the app uses advertising ID**, for **Advert
 - User interaction / user-generated content / chat: **No**
 - Shares the user's location with other users: **No**
 - Digital purchases: **No**
-- Ads: **Yes**
+- Ads: **No**
 
 Expected result: Everyone / PEGI 3 (or local equivalent).
 
 ## Target audience and content
 
-- **Target age groups: 13 and over** (13-15, 16-17, 18+). Don't select under-13 groups: the app uses the standard AdMob SDK with personalised ads subject to consent, which isn't set up for the Families Policy.
-- Ads: **Contains ads**.
+- **Target age groups: 13 and over** (13-15, 16-17, 18+). The game would also suit younger players, but selecting under-13 groups opts you into the Families Policy and extra review; keep 13+ unless you specifically want that.
+- Ads: **No ads**.
 - News app: No. Government app: No. Financial features: None. Health: No.
 - Account deletion: not applicable (no accounts).
 
 ## Permissions in the final manifest
 
-Expected after an EAS build:
-- `android.permission.INTERNET`
-- `android.permission.ACCESS_NETWORK_STATE` (AdMob)
-- `com.google.android.gms.permission.AD_ID` (AdMob)
+Verified with `expo prebuild`:
+- `android.permission.INTERNET` (React Native default; the app makes no network requests)
 - `android.permission.VIBRATE` (haptics)
-- `android.permission.WAKE_LOCK` and the Google Play services/AdMob receivers added by the SDK at build time
 
 Explicitly blocked in `app.config.ts`: RECORD_AUDIO, MODIFY_AUDIO_SETTINGS, storage, SYSTEM_ALERT_WINDOW, FOREGROUND_SERVICE*.
