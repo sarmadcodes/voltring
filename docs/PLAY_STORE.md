@@ -36,7 +36,7 @@ Everything here reflects the actual implementation as of version 1.0.0: a fully 
 |---|---|---|
 | App icon | 512 x 512 PNG, 32-bit | Done: `assets/images/play-store-icon.png` |
 | Feature graphic | 1024 x 500 PNG/JPG, no alpha | Done: `assets/store/feature-graphic.png` (`npm run gen:feature`) |
-| Phone screenshots | 2 to 8, 16:9 or 9:16, min 320 px side | **To do** from the real app on a phone: home, gameplay mid-combo, PERFECT feedback, game over with a new high score, records. |
+| Phone screenshots | 2 to 8, 16:9 or 9:16, min 320 px side | Done: `assets/store/screenshots/01-home.png` ... `04-records.png` (1080x1920, real runs; `npm run gen:screenshots`) |
 | Tablet screenshots | Optional | Skip (phone-first, portrait). |
 
 Screenshots must show the real UI from real play.

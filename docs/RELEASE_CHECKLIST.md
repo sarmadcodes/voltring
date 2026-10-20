@@ -14,11 +14,11 @@ Status legend: [x] done in the codebase and verified, [ ] needs you (accounts, a
 - [x] TypeScript, ESLint, Jest tests, expo-doctor all passing (`npm run check`)
 - [x] EAS project linked (`@sarmadcodess/voltring`)
 - [x] Icons, splash, Play icon 512x512 (`assets/images/play-store-icon.png`), feature graphic 1024x500 (`assets/store/feature-graphic.png`)
+- [x] Phone screenshots 1080x1920 from real runs (`assets/store/screenshots/`)
 - [x] Privacy policy live at https://sarmadcodes.github.io/voltring/ (source `docs/privacy/index.html`, published from the `gh-pages` branch)
 
 ## You need to provide
 - [x] EAS production vars set: `EXPO_PUBLIC_PRIVACY_POLICY_URL`, `EXPO_PUBLIC_SUPPORT_EMAIL`
-- [ ] 4 to 8 real phone screenshots from a preview build
 
 ## On real devices (preview build: `npm run build:preview`)
 - [ ] Fresh install straight to Home, first game

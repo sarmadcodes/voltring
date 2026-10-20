@@ -59,7 +59,6 @@ function Stat({ label, value, highlight }: { label: string; value: string; highl
         variant="number"
         style={styles.statValue}
         color={highlight ? colors.primary : colors.text}
-        glow={highlight ? 'rgba(60,240,255,0.5)' : undefined}
         numberOfLines={1}
         adjustsFontSizeToFit
       >

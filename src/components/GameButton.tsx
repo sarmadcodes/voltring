@@ -53,8 +53,6 @@ export function GameButton({ label, onPress, variant = 'secondary', disabled, si
       <View style={styles.inner}>
         <NeonText
           style={[styles.label, size === 'lg' && styles.labelLg, { color: v.text }]}
-          glow={variant === 'primary' ? undefined : v.glow}
-          glowRadius={8}
           numberOfLines={1}
           adjustsFontSizeToFit
         >

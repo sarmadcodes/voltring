@@ -48,3 +48,4 @@ example
 /ios
 credentials.json
 *.keystore
+dist-web/

@@ -152,7 +152,7 @@ function NewRecord() {
 const styles = StyleSheet.create({
   scrim: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(6,6,11,0.9)',
+    backgroundColor: 'rgba(6,6,11,0.94)',
     justifyContent: 'center',
     paddingHorizontal: space.lg,
   },

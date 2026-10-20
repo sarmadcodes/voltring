@@ -16,7 +16,10 @@ const VARIANTS: Record<Variant, TextStyle> = {
 interface Props extends TextProps {
   variant?: Variant;
   color?: string;
-  /** Glow color; omit for flat text. Kept off body copy for readability. */
+  /**
+   * Glow color; omit for flat text. Kept off body copy for readability.
+   * Don't combine with numberOfLines: single-line text clips the glow into a visible box.
+   */
   glow?: string;
   glowRadius?: number;
 }

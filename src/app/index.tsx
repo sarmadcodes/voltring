@@ -21,7 +21,7 @@ export default function Home() {
       <View style={styles.hero}>
         <Animated.View entering={FadeInDown.duration(420)} style={styles.logo}>
           <LogoMark size={128} />
-          <NeonText variant="title" glow="rgba(60,240,255,0.55)" glowRadius={18} style={[styles.title, { fontSize: titleSize }]} numberOfLines={1} adjustsFontSizeToFit accessibilityRole="header">
+          <NeonText variant="title" glow="rgba(60,240,255,0.55)" glowRadius={18} style={[styles.title, { fontSize: titleSize }]} accessibilityRole="header">
             VOLTRING
           </NeonText>
         </Animated.View>

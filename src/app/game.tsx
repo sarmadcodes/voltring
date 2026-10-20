@@ -4,7 +4,6 @@ import { AppState, BackHandler, StyleSheet, useWindowDimensions, View } from 're
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   FadeIn,
-  FadeOut,
   useAnimatedStyle,
   useFrameCallback,
   useReducedMotion,
@@ -230,6 +229,8 @@ export default function GameScreen() {
     play(beatStart && newBest ? 'record' : 'gameover');
     haptic('gameover');
     setPhaseBoth('over');
+    // The last miss message would otherwise show through the game-over panel.
+    later(() => setFeedback(null), 300);
     // Brief beat so the final miss flash registers before the panel covers the ring.
     later(() => setOver({ score, maxCombo, newBest: beatStart, rank }), 320);
   }
@@ -369,7 +370,7 @@ export default function GameScreen() {
             </View>
             <View style={styles.feedback}>
               {feedback ? (
-                <Animated.View key={feedback.id} entering={FadeIn.duration(90)} exiting={FadeOut.duration(220)}>
+                <Animated.View key={feedback.id} entering={FadeIn.duration(90)}>
                   <NeonText variant="heading" color={feedback.color} glow={feedback.color + '88'} glowRadius={10} style={styles.feedbackText}>
                     {feedback.text}
                   </NeonText>
