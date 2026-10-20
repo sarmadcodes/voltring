@@ -1,9 +1,8 @@
 import Constants from 'expo-constants';
 
 /**
- * Only EXPO_PUBLIC_* values end up in the JS bundle. Everything here is public by
- * design (Supabase anon key is meant to ship; RLS + RPC checks protect the data).
- * Never add a service-role key or any other secret to this file or to .env.
+ * Only EXPO_PUBLIC_* values end up in the JS bundle, and everything here is public by design
+ * (AdMob unit IDs, URLs). The game has no backend and no secrets.
  */
 type AppEnv = 'development' | 'preview' | 'production';
 
@@ -16,9 +15,6 @@ export const APP_ENV: AppEnv =
   rawEnv === 'production' || rawEnv === 'preview' ? rawEnv : 'development';
 export const IS_PRODUCTION = APP_ENV === 'production' && !__DEV__;
 
-export const SUPABASE_URL = str(process.env.EXPO_PUBLIC_SUPABASE_URL).replace(/\/+$/, '');
-export const SUPABASE_ANON_KEY = str(process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY);
-export const LEADERBOARD_ENABLED = SUPABASE_URL.startsWith('https://') && SUPABASE_ANON_KEY.length > 20;
 
 export const ADMOB_UNITS = {
   banner: str(process.env.EXPO_PUBLIC_ADMOB_BANNER_ANDROID),

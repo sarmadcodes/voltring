@@ -11,7 +11,6 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { initAds } from '@/services/ads';
 import { initAudio, setAppActive, setMusicWanted, syncMusic } from '@/services/audio';
-import { syncNow } from '@/services/sync';
 import { hydrate, subscribe, useAppData } from '@/state/store';
 import { colors } from '@/theme/tokens';
 
@@ -25,7 +24,6 @@ export default function RootLayout() {
     ChakraPetch_700Bold,
   });
   const ready = useAppData((s) => s.ready);
-  const hasProfile = useAppData((s) => s.profile !== null);
 
   useEffect(() => {
     void hydrate();
@@ -37,21 +35,14 @@ export default function RootLayout() {
   useEffect(() => {
     if (!appReady) return;
     void SplashScreen.hideAsync().catch(() => undefined);
-    // Everything network- or native-heavy starts after first paint, never blocking PLAY.
+    // Native-heavy work starts after first paint and never blocks PLAY.
     void initAudio().then(() => setMusicWanted(true));
-    void syncNow();
+    // Consent (where required) is gathered at launch, before any ad is requested.
+    void initAds();
   }, [appReady]);
 
-  // Consent and ads only after the player has a name, so the consent form never collides with onboarding.
   useEffect(() => {
-    if (appReady && hasProfile) void initAds();
-  }, [appReady, hasProfile]);
-
-  useEffect(() => {
-    const sub = AppState.addEventListener('change', (state) => {
-      setAppActive(state === 'active');
-      if (state === 'active') void syncNow();
-    });
+    const sub = AppState.addEventListener('change', (state) => setAppActive(state === 'active'));
     // Toggling music in settings takes effect immediately.
     const unsub = subscribe(syncMusic);
     return () => {
@@ -74,14 +65,11 @@ export default function RootLayout() {
             animationDuration: 160,
           }}
         >
-          <Stack.Protected guard={hasProfile}>
-            <Stack.Screen name="index" />
-            <Stack.Screen name="game" options={{ animation: 'fade', gestureEnabled: false }} />
-            <Stack.Screen name="leaderboard" />
-            <Stack.Screen name="settings" />
-            <Stack.Screen name="about" />
-          </Stack.Protected>
-          <Stack.Screen name="name" />
+          <Stack.Screen name="index" />
+          <Stack.Screen name="game" options={{ animation: 'fade', gestureEnabled: false }} />
+          <Stack.Screen name="records" />
+          <Stack.Screen name="settings" />
+          <Stack.Screen name="about" />
         </Stack>
       </SafeAreaProvider>
     </GestureHandlerRootView>

@@ -20,7 +20,6 @@ import { NeonText } from '@/components/NeonText';
 import { Countdown, GameOverPanel, PausePanel } from '@/components/game/Overlays';
 import { ComboDisplay, LivesDisplay, PauseButton, ScoreDisplay } from '@/components/game/Hud';
 import { Ring } from '@/components/game/Ring';
-import { LEADERBOARD_ENABLED } from '@/config/env';
 import { Evt, Status, createEngineState, revive, step, tap, type EngineState } from '@/game/engine';
 import { COMBO_MILESTONE, START_LIVES, gateHalfForHits, levelForHits } from '@/game/rules';
 import { formatScore } from '@/lib/format';
@@ -28,8 +27,7 @@ import { useGuardedPress } from '@/lib/useGuardedPress';
 import { isRewardedReady, maybeShowInterstitial, noteGameCompleted, onRewardedReadyChange, showRewarded } from '@/services/ads';
 import { play } from '@/services/audio';
 import { haptic } from '@/services/haptics';
-import { newRunId, recordRun, syncNow } from '@/services/sync';
-import { useAppData } from '@/state/store';
+import { recordRun, useAppData } from '@/state/store';
 import { colors, space } from '@/theme/tokens';
 
 type Phase = 'countdown' | 'playing' | 'paused' | 'over';
@@ -52,10 +50,15 @@ interface OverInfo {
   score: number;
   maxCombo: number;
   newBest: boolean;
+  /** Place in the personal top 10, or null if it didn't make the list. */
+  rank: number | null;
 }
 
 const INITIAL_HUD: Hud = { score: 0, combo: 0, lives: START_LIVES, half: gateHalfForHits(0), golden: false };
 const COUNT_STEP_MS = 420;
+
+let runCounter = 0;
+const newRunId = () => `${Date.now()}-${++runCounter}`;
 
 const newSeed = () => (Date.now() ^ Math.floor(Math.random() * 0x7fffffff)) | 0;
 
@@ -65,9 +68,6 @@ export default function GameScreen() {
   const reduceMotion = useReducedMotion();
   const best = useAppData((s) => s.stats.best);
   const gamesPlayed = useAppData((s) => s.stats.gamesPlayed);
-  const rank = useAppData((s) => s.rank);
-  const sync = useAppData((s) => s.sync);
-  const hasPending = useAppData((s) => s.stats.pending !== null);
 
   const [initialState] = useState(() => createEngineState(newSeed()));
   const engine = useSharedValue<EngineState>(initialState);
@@ -221,13 +221,13 @@ export default function GameScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function handleGameOver(score: number, hits: number, maxCombo: number, elapsedMs: number) {
+  function handleGameOver(score: number, hits: number, maxCombo: number) {
     if (run.current.overHandled) return;
     run.current.overHandled = true;
     frame.setActive(false);
     clearTimers();
-    const { newBest } = recordRun(
-      { runId: run.current.runId, score, hits, durationMs: Math.round(elapsedMs), maxCombo },
+    const { newBest, rank } = recordRun(
+      { runId: run.current.runId, score, hits, maxCombo, at: Date.now() },
       run.current.continued,
     );
     if (!run.current.continued) noteGameCompleted();
@@ -236,7 +236,7 @@ export default function GameScreen() {
     haptic('gameover');
     setPhaseBoth('over');
     // Brief beat so the final miss flash registers before the panel covers the ring.
-    later(() => setOver({ score, maxCombo, newBest: beatStart }), 320);
+    later(() => setOver({ score, maxCombo, newBest: beatStart, rank }), 320);
   }
 
   const showFeedback = (text: string, color: string) => {
@@ -266,7 +266,7 @@ export default function GameScreen() {
       showFeedback(evt === Evt.MissEarly ? 'TOO EARLY' : 'TOO LATE', colors.danger);
       return;
     }
-    if (evt === Evt.GameOver) handleGameOver(score, hits, maxCombo, elapsedMs);
+    if (evt === Evt.GameOver) handleGameOver(score, hits, maxCombo);
   };
 
   useLayoutEffect(() => {
@@ -347,7 +347,6 @@ export default function GameScreen() {
   useEffect(() => {
     const sub = AppState.addEventListener('change', (state) => {
       if (state !== 'active') pause();
-      else void syncNow();
     });
     return () => sub.remove();
   }, [pause]);
@@ -376,11 +375,6 @@ export default function GameScreen() {
   const usable = height - insets.top - insets.bottom;
   const ringSize = Math.min(width - space.xl * 1.5, usable * 0.52, 460);
 
-  const rankText = rank ? `#${formatScore(rank)}` : '--';
-  let syncNote: string | null = null;
-  if (over && LEADERBOARD_ENABLED && hasPending) {
-    syncNote = sync === 'failed' ? "Couldn't sync your score. We'll try again." : 'Syncing your score...';
-  }
 
   return (
     <View style={styles.root}>
@@ -447,12 +441,12 @@ export default function GameScreen() {
           best={Math.max(best, over.score)}
           maxCombo={over.maxCombo}
           newBest={over.newBest}
-          rankText={rankText}
-          syncNote={syncNote}
+          rank={over.rank}
+          gamesPlayed={gamesPlayed}
           canContinue={!continueUsed && rewardReady}
           onContinue={continueRun}
           onPlayAgain={playAgain}
-          onLeaderboard={() => router.push('/leaderboard')}
+          onRecords={() => router.push('/records')}
           onHome={leave}
         />
       ) : null}

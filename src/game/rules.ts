@@ -2,8 +2,7 @@
  * Pure scoring + difficulty rules. Every function here is a worklet so the
  * same code runs on the UI thread (game loop) and in Jest.
  *
- * IMPORTANT: `maxScoreForHits` is mirrored in supabase/migrations (voltring_max_score_for_hits).
- * Change both together or legitimate scores will be rejected server-side.
+ * `maxScoreForHits` is the theoretical ceiling for a run; tests use it as a scoring invariant.
  */
 
 export const START_LIVES = 3;
@@ -63,7 +62,3 @@ export function maxScoreForHits(hits: number): number {
   return total;
 }
 
-/** A run cannot land hits faster than one per MIN_REACTION_SEC (with a small allowance). */
-export function maxHitsForDuration(durationMs: number): number {
-  return Math.floor(durationMs / 250) + 3;
-}

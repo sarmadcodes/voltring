@@ -66,12 +66,13 @@ interface GameOverProps {
   best: number;
   maxCombo: number;
   newBest: boolean;
-  rankText: string;
-  syncNote: string | null;
+  /** Place in the personal top 10, or null. */
+  rank: number | null;
+  gamesPlayed: number;
   canContinue: boolean;
   onContinue: () => void;
   onPlayAgain: () => void;
-  onLeaderboard: () => void;
+  onRecords: () => void;
   onHome: () => void;
 }
 
@@ -104,13 +105,11 @@ export function GameOverPanel(p: GameOverProps) {
           <View style={styles.divider} />
           <Stat label="COMBO" value={`x${p.maxCombo}`} />
           <View style={styles.divider} />
-          <Stat label="RANK" value={p.rankText} />
+          <Stat label="TOP 10" value={p.rank ? `#${p.rank}` : '--'} />
         </View>
-        {p.syncNote ? (
-          <NeonText variant="caption" style={styles.note}>
-            {p.syncNote}
-          </NeonText>
-        ) : null}
+        <NeonText variant="caption" style={styles.note}>
+          {p.rank && !p.newBest ? `Your #${p.rank} best run. ` : ''}Game {formatScore(p.gamesPlayed)}
+        </NeonText>
 
         <View style={styles.actions}>
           {p.canContinue ? (
@@ -118,8 +117,8 @@ export function GameOverPanel(p: GameOverProps) {
           ) : null}
           <GameButton label="PLAY AGAIN" variant="primary" size="lg" onPress={p.onPlayAgain} disabled={!armed} />
           <View style={styles.row}>
-            <GameButton label="LEADERBOARD" onPress={p.onLeaderboard} disabled={!armed} />
-            <GameButton label="HOME" variant="ghost" onPress={p.onHome} disabled={!armed} />
+            <GameButton label="RECORDS" onPress={p.onRecords} disabled={!armed} style={styles.flex} />
+            <GameButton label="HOME" variant="ghost" onPress={p.onHome} disabled={!armed} style={styles.flex} />
           </View>
         </View>
       </View>
@@ -181,7 +180,8 @@ const styles = StyleSheet.create({
   divider: { width: 1, backgroundColor: colors.line },
   note: { marginTop: space.sm, textAlign: 'center' },
   actions: { alignSelf: 'stretch', gap: space.sm + 4, marginTop: space.xl },
-  row: { gap: space.sm + 4 },
+  row: { flexDirection: 'row', gap: space.sm + 4 },
+  flex: { flex: 1 },
   countdown: { ...StyleSheet.absoluteFill, alignItems: 'center', justifyContent: 'center' },
   countText: { fontSize: 72 },
 });

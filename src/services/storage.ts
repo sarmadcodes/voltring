@@ -2,6 +2,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { logError } from '@/lib/log';
 
+/**
+ * Everything the game remembers lives on the device. There is no backend: uninstalling
+ * the app is the only way data leaves, and nothing is ever sent anywhere.
+ */
 const PREFIX = 'voltring:v1:';
 
 export interface Settings {
@@ -10,36 +14,25 @@ export interface Settings {
   haptics: boolean;
 }
 
-export interface Profile {
-  username: string;
-  /** Random per-install credential used to authorise writes to this player's row. Never shown publicly. */
-  secret: string;
-  /** Server row id once registered; null while offline or before first sync. */
-  playerId: string | null;
-  /** Server reported the local name is taken; the player must pick another before syncing. */
-  nameConflict: boolean;
-  lastRenameAt: number | null;
-}
-
-export interface PendingScore {
-  runId: string;
+export interface RunRecord {
   score: number;
-  hits: number;
-  durationMs: number;
   maxCombo: number;
+  hits: number;
+  /** Epoch ms when the run ended. */
+  at: number;
 }
 
 export interface Stats {
   best: number;
   bestCombo: number;
   gamesPlayed: number;
-  /** Highest score the server has confirmed for this player. */
-  syncedBest: number;
-  pending: PendingScore | null;
+  /** Personal top runs, highest first. */
+  topRuns: RunRecord[];
 }
 
+export const MAX_TOP_RUNS = 10;
 export const DEFAULT_SETTINGS: Settings = { sound: true, music: true, haptics: true };
-export const DEFAULT_STATS: Stats = { best: 0, bestCombo: 0, gamesPlayed: 0, syncedBest: 0, pending: null };
+export const DEFAULT_STATS: Stats = { best: 0, bestCombo: 0, gamesPlayed: 0, topRuns: [] };
 
 const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null;
 const num = (v: unknown, fallback = 0) => (typeof v === 'number' && Number.isFinite(v) && v >= 0 ? Math.floor(v) : fallback);
@@ -54,37 +47,26 @@ export function sanitizeSettings(v: unknown): Settings {
   };
 }
 
-export function sanitizePending(v: unknown): PendingScore | null {
-  if (!isObj(v) || typeof v.runId !== 'string') return null;
-  return {
-    runId: v.runId,
-    score: num(v.score),
-    hits: num(v.hits),
-    durationMs: num(v.durationMs),
-    maxCombo: num(v.maxCombo),
-  };
+function sanitizeRun(v: unknown): RunRecord | null {
+  if (!isObj(v)) return null;
+  const score = num(v.score, -1);
+  if (score <= 0) return null;
+  return { score, maxCombo: num(v.maxCombo), hits: num(v.hits), at: num(v.at) };
 }
 
 export function sanitizeStats(v: unknown): Stats {
-  if (!isObj(v)) return { ...DEFAULT_STATS };
+  if (!isObj(v)) return { ...DEFAULT_STATS, topRuns: [] };
+  const topRuns = (Array.isArray(v.topRuns) ? v.topRuns : [])
+    .map(sanitizeRun)
+    .filter((r): r is RunRecord => r !== null)
+    .sort((a, b) => b.score - a.score || a.at - b.at)
+    .slice(0, MAX_TOP_RUNS);
   return {
-    best: num(v.best),
+    // Best can never be lower than the best recorded run, even if storage was edited.
+    best: Math.max(num(v.best), topRuns[0]?.score ?? 0),
     bestCombo: num(v.bestCombo),
     gamesPlayed: num(v.gamesPlayed),
-    syncedBest: num(v.syncedBest),
-    pending: sanitizePending(v.pending),
-  };
-}
-
-export function sanitizeProfile(v: unknown): Profile | null {
-  if (!isObj(v) || typeof v.username !== 'string' || typeof v.secret !== 'string') return null;
-  if (v.username.length === 0 || v.secret.length < 32) return null;
-  return {
-    username: v.username,
-    secret: v.secret,
-    playerId: typeof v.playerId === 'string' ? v.playerId : null,
-    nameConflict: bool(v.nameConflict, false),
-    lastRenameAt: typeof v.lastRenameAt === 'number' ? v.lastRenameAt : null,
+    topRuns,
   };
 }
 
@@ -112,13 +94,4 @@ export const storage = {
   saveSettings: (s: Settings) => write('settings', s),
   loadStats: async () => sanitizeStats(await read('stats')),
   saveStats: (s: Stats) => write('stats', s),
-  loadProfile: async () => sanitizeProfile(await read('profile')),
-  saveProfile: (p: Profile) => write('profile', p),
-  clearProfile: async () => {
-    try {
-      await AsyncStorage.removeItem(PREFIX + 'profile');
-    } catch (e) {
-      logError('storage.clear', e);
-    }
-  },
 };

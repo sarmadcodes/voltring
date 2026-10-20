@@ -3,6 +3,7 @@ import type { ConfigContext, ExpoConfig } from 'expo/config';
 /**
  * Build-time config. APP_ENV comes from the EAS build profile (see eas.json).
  * Production builds refuse to compile with placeholder/test AdMob IDs or a missing privacy URL.
+ * The game has no backend: there are no server URLs or keys to configure.
  */
 const APP_ENV = process.env.EXPO_PUBLIC_APP_ENV ?? 'development';
 const IS_PROD = APP_ENV === 'production';
@@ -17,8 +18,6 @@ if (IS_PROD) {
     ['EXPO_PUBLIC_ADMOB_BANNER_ANDROID', process.env.EXPO_PUBLIC_ADMOB_BANNER_ANDROID],
     ['EXPO_PUBLIC_ADMOB_INTERSTITIAL_ANDROID', process.env.EXPO_PUBLIC_ADMOB_INTERSTITIAL_ANDROID],
     ['EXPO_PUBLIC_ADMOB_REWARDED_ANDROID', process.env.EXPO_PUBLIC_ADMOB_REWARDED_ANDROID],
-    ['EXPO_PUBLIC_SUPABASE_URL', process.env.EXPO_PUBLIC_SUPABASE_URL],
-    ['EXPO_PUBLIC_SUPABASE_ANON_KEY', process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY],
     ['EXPO_PUBLIC_PRIVACY_POLICY_URL', process.env.EXPO_PUBLIC_PRIVACY_POLICY_URL],
   ].filter(([, v]) => !v);
   if (missing.length) throw new Error(`Production build is missing: ${missing.map(([k]) => k).join(', ')}`);

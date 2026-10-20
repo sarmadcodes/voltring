@@ -1,7 +1,7 @@
 import { useCallback, useRef } from 'react';
 
 /**
- * Swallows repeat presses inside a short window so spamming PLAY / LEADERBOARD / BACK
+ * Swallows repeat presses inside a short window so spamming PLAY / RECORDS / BACK
  * can't push duplicate screens or fire an action twice.
  */
 export function useGuardedPress<A extends unknown[]>(fn: (...args: A) => void, windowMs = 450) {

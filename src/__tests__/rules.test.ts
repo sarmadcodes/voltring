@@ -1,7 +1,6 @@
 import {
   MAX_MULTIPLIER,
   gateHalfForHits,
-  maxHitsForDuration,
   maxScoreForHits,
   multiplierForCombo,
   pointsForHit,
@@ -47,8 +46,8 @@ describe('combo and scoring', () => {
     expect(pointsForHit(10, 1, false, false)).toBe(11);
   });
 
-  it('maxScoreForHits matches the server formula', () => {
-    // Re-implementation of the SQL: sum((10 + least(i/10,20)) * 6 * least(1 + (i+1)/4, 8)).
+  it('maxScoreForHits matches the closed-form ceiling', () => {
+    // Independent closed form: sum((10 + least(i/10,20)) * 6 * least(1 + (i+1)/4, 8)).
     const sql = (n: number) => {
       let t = 0;
       for (let i = 0; i < n; i++) {
@@ -60,8 +59,4 @@ describe('combo and scoring', () => {
     expect(maxScoreForHits(1)).toBe(60);
   });
 
-  it('bounds hits by elapsed time', () => {
-    expect(maxHitsForDuration(0)).toBe(3);
-    expect(maxHitsForDuration(10_000)).toBe(43);
-  });
 });
